@@ -1,19 +1,22 @@
 import React from 'react';
-import './globals.css'; // Não se preocupe, criaremos este depois se necessário
 
 export const metadata = {
-  title: 'HLP.FIX - Inteligência em Compras',
-  description: 'Sistema de gestão de suprimentos HolamPar',
+  title: 'HLP.FIX - HolamPar',
+  description: 'Inteligência em Suprimentos',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-br">
-      <body className="bg-slate-50 antialiased">{children}</body>
+      <body style={{ 
+        margin: 0, 
+        padding: 0, 
+        backgroundColor: '#f8fafc', 
+        fontFamily: 'sans-serif',
+        overflowX: 'hidden' 
+      }}>
+        {children}
+      </body>
     </html>
   );
 }
