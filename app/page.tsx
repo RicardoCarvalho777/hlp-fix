@@ -2,8 +2,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { 
-  LayoutDashboard, Package, TrendingUp, Clock, Search, 
-  FileUp, Mail, LogOut, ShieldCheck, AlertCircle, CheckCircle2, Loader2, ChevronRight
+  LayoutDashboard, Package, TrendingUp, Clock, FileUp, 
+  Mail, LogOut, ShieldCheck, AlertCircle, CheckCircle2, 
+  Loader2, ChevronRight, UserPlus, Globe, Lock, Zap, BarChart3
 } from 'lucide-react';
 
 const supabase = createClient(
@@ -11,192 +12,160 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 );
 
-export default function Dashboard() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [quotes, setQuotes] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function HolamParEnterprise() {
+  const [view, setView] = useState('login'); // login, register, dashboard
   const [uploading, setUploading] = useState(false);
+  const [quotes, setQuotes] = useState([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  async function fetchQuotes() {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('quotes')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (!error) setQuotes(data || []);
-    setLoading(false);
-  }
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    
-    try {
-      const { data: quoteData, error: quoteError } = await supabase
-        .from('quotes')
-        .insert([{ title: file.name, status: 'ANALYZING' }])
-        .select().single();
-
-      if (quoteError) throw quoteError;
-
-      // Chamada real para processamento (IA Gemini)
-      setTimeout(async () => {
-        await supabase.from('quotes').update({ status: 'READY' }).eq('id', quoteData.id);
-        fetchQuotes();
-        setUploading(false);
-      }, 2500);
-
-    } catch (err) {
-      console.error(err);
-      setUploading(false);
-    }
+  // Cores Oficiais HolamPar
+  const colors = {
+    black: '#000000',
+    orange: '#FF5A00',
+    white: '#FFFFFF',
+    gray: '#EDEDED'
   };
 
-  useEffect(() => {
-    if (isLoggedIn) fetchQuotes();
-  }, [isLoggedIn]);
-
-  if (!isLoggedIn) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <script src="https://cdn.tailwindcss.com"></script>
-        <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md border-t-[6px] border-amber-500">
-          <div className="flex justify-center mb-8">
-            <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 shadow-2xl border border-slate-800">
-              <ShieldCheck size={36} />
-            </div>
-          </div>
-          <h2 className="text-3xl font-black text-center text-slate-900 mb-1 tracking-tighter italic">HLP.FIX</h2>
-          <p className="text-slate-400 text-center text-[10px] font-black uppercase tracking-[0.3em] mb-10">Industrial Intelligence</p>
-          <input type="password" placeholder="CHAVE MESTRA" className="w-full px-4 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl mb-6 outline-none focus:border-amber-500 transition-all font-mono text-center text-lg tracking-widest" onKeyDown={(e) => e.key === 'Enter' && setIsLoggedIn(true)} />
-          <button onClick={() => setIsLoggedIn(true)} className="w-full bg-slate-900 text-amber-500 font-black py-5 rounded-2xl hover:bg-slate-800 transition-all shadow-xl uppercase tracking-[0.2em] text-xs">
-            Unlock System
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-[#f1f5f9] flex font-sans text-slate-900">
+    <div className="min-h-screen bg-[#000000] font-sans text-[#FFFFFF]">
       <script src="https://cdn.tailwindcss.com"></script>
-      <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".pdf" />
 
-      <aside className="w-72 bg-slate-900 text-white flex flex-col border-r border-slate-800 shadow-2xl">
-        <div className="p-8 border-b border-slate-800 bg-slate-950/50">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.4)]">
-              <Package size={24} strokeWidth={3} />
-            </div>
-            <div>
-              <h1 className="text-xl font-black tracking-tighter italic">HLP.FIX</h1>
-              <span className="text-[9px] text-emerald-500 font-black uppercase tracking-widest flex items-center gap-1">
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                Live Database
-              </span>
-            </div>
-          </div>
-        </div>
-        <nav className="flex-1 p-6 space-y-4">
-          <div className="flex items-center justify-between p-4 bg-amber-500 text-slate-950 rounded-2xl font-black text-xs shadow-lg cursor-pointer tracking-widest">
-            <div className="flex items-center gap-3">
-              <LayoutDashboard size={18} />
-              <span>DASHBOARD</span>
-            </div>
-            <ChevronRight size={14} />
-          </div>
-        </nav>
-        <div className="p-6 border-t border-slate-800">
-          <button onClick={() => setIsLoggedIn(false)} className="flex items-center gap-3 p-4 text-rose-500 hover:bg-rose-500/10 w-full rounded-2xl transition-all font-black text-xs tracking-widest">
-            <LogOut size={18} />
-            <span>LOGOUT</span>
-          </button>
-        </div>
-      </aside>
-
-      <main className="flex-1 overflow-auto">
-        <header className="h-24 bg-white border-b border-slate-200 flex items-center justify-between px-12 sticky top-0 z-10 shadow-sm">
-          <div>
-            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">HolamPar Operations</h2>
-            <p className="text-2xl font-black text-slate-900 tracking-tighter">Controle de Suprimentos</p>
-          </div>
-          <button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="bg-slate-900 text-amber-500 px-8 py-4 rounded-2xl font-black text-xs flex items-center gap-3 hover:bg-slate-800 transition-all shadow-2xl disabled:opacity-50 uppercase tracking-[0.2em] border border-slate-700">
-            {uploading ? <Loader2 className="animate-spin" size={18} /> : <FileUp size={18} />}
-            {uploading ? 'IA Analyzing...' : 'Analisar Orçamento'}
-          </button>
-        </header>
-
-        <div className="p-12 max-w-7xl mx-auto">
-          <div className="bg-white rounded-[2rem] border border-slate-200 shadow-xl overflow-hidden">
-            <div className="p-10 border-b border-slate-100 bg-slate-50/30 flex justify-between items-center">
-              <div>
-                <h2 className="text-xl font-black text-slate-900 tracking-tight">Cotações Recentes</h2>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Inteligência Industrial Ativa</p>
+      {/* TELA DE ACESSO (LOGIN / CADASTRO) */}
+      {view === 'login' || view === 'register' ? (
+        <div className="min-h-screen flex items-center justify-center p-6 bg-black">
+          <div className="bg-[#111111] p-12 rounded-[3rem] shadow-[0_0_50px_rgba(255,90,0,0.1)] w-full max-w-[480px] border border-[#FF5A00]/20">
+            <div className="flex flex-col items-center mb-12">
+              <div className="w-24 h-24 bg-[#FF5A00] rounded-[2rem] flex items-center justify-center text-black shadow-[0_0_40px_rgba(255,90,0,0.3)] mb-6">
+                <ShieldCheck size={50} strokeWidth={2.5} />
               </div>
-              <button onClick={fetchQuotes} className="p-3 text-slate-300 hover:text-amber-500 transition-all">
-                <Clock size={22} />
-              </button>
+              <h2 className="text-5xl font-black text-white tracking-tighter italic">HLP.FIX</h2>
+              <p className="text-[#FF5A00] text-[10px] font-black uppercase tracking-[0.5em] mt-2">Industrial Intelligence</p>
             </div>
-            
-            <div className="p-4">
-              {loading ? (
-                <div className="flex flex-col items-center py-24 gap-4 text-slate-300">
-                  <Loader2 className="animate-spin" size={48} />
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em]">Sincronizando...</p>
+
+            {view === 'login' ? (
+              <div className="space-y-5">
+                <button onClick={() => setView('dashboard')} className="w-full flex items-center justify-center gap-3 bg-white text-black font-black py-5 rounded-2xl hover:bg-[#EDEDED] transition-all text-xs uppercase tracking-widest">
+                  <Globe size={18} /> Entrar com Google
+                </button>
+                <div className="relative py-4">
+                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
+                  <div className="relative flex justify-center text-[10px] uppercase tracking-widest"><span className="bg-[#111111] px-4 text-slate-500 font-bold">Acesso Corporativo</span></div>
                 </div>
-              ) : quotes.length === 0 ? (
-                <div className="flex flex-col items-center py-24 gap-6 text-slate-300 border-4 border-dashed border-slate-50 rounded-[2rem] m-6">
-                  <AlertCircle size={64} strokeWidth={1} />
-                  <div className="text-center">
-                    <p className="text-slate-900 font-black text-xl tracking-tight">Nenhum dado processado</p>
-                    <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mt-2">Aguardando primeiro PDF</p>
+                <input type="email" placeholder="E-MAIL" className="w-full px-6 py-5 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-[#FF5A00] transition-all text-sm font-bold" />
+                <input type="password" placeholder="SENHA" className="w-full px-6 py-5 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-[#FF5A00] transition-all text-sm font-bold" />
+                <button onClick={() => setView('dashboard')} className="w-full bg-[#FF5A00] text-black font-black py-5 rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl uppercase tracking-[0.2em] text-xs">Iniciar Operação</button>
+                <p className="text-center text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-8">Novo por aqui? <button onClick={() => setView('register')} className="text-[#FF5A00] hover:underline">Criar Conta Industrial</button></p>
+              </div>
+            ) : (
+              <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                <input type="text" placeholder="NOME / RAZÃO SOCIAL" className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-[#FF5A00] transition-all text-xs font-bold" />
+                <input type="text" placeholder="CPF / CNPJ" className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-[#FF5A00] transition-all text-xs font-bold" />
+                <input type="email" placeholder="E-MAIL DE CONTATO" className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-[#FF5A00] transition-all text-xs font-bold" />
+                <input type="password" placeholder="DEFINIR SENHA" className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-[#FF5A00] transition-all text-xs font-bold" />
+                <button onClick={() => setView('login')} className="w-full bg-[#FF5A00] text-black font-black py-5 rounded-2xl hover:bg-[#FF5A00]/90 transition-all shadow-lg uppercase tracking-widest text-xs">Finalizar Cadastro</button>
+                <button onClick={() => setView('login')} className="w-full text-slate-500 font-black py-2 text-[10px] uppercase tracking-widest">Voltar ao Login</button>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        /* DASHBOARD HOLAMPAR PREMIUM */
+        <div className="flex h-screen overflow-hidden bg-black">
+          {/* Sidebar - Total Black */}
+          <aside className="w-72 bg-black border-r border-white/5 flex flex-col">
+            <div className="p-10 border-b border-white/5">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-[#FF5A00] rounded-2xl flex items-center justify-center text-black shadow-lg">
+                  <Package size={28} strokeWidth={3} />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-black tracking-tighter italic">HLP.FIX</h1>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <span className="text-[8px] font-black uppercase tracking-widest text-emerald-500">Secure Node</span>
                   </div>
                 </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="text-slate-400 text-[10px] uppercase font-black tracking-[0.2em] border-b border-slate-100">
-                        <th className="py-6 px-8">Documento</th>
-                        <th className="py-6 px-8">Status</th>
-                        <th className="py-6 px-8 text-right">Ação</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                      {quotes.map((quote: any) => (
-                        <tr key={quote.id} className="group hover:bg-slate-50/80 transition-all">
-                          <td className="py-8 px-8">
-                            <div className="font-black text-slate-900 text-base tracking-tight">{quote.title}</div>
-                            <div className="text-[10px] text-slate-400 font-black uppercase mt-1 tracking-widest">
-                              {new Date(quote.created_at).toLocaleString('pt-BR')}
-                            </div>
-                          </td>
-                          <td className="py-8 px-8">
-                            <span className={`px-4 py-1.5 rounded-full text-[9px] font-black border uppercase tracking-[0.2em] ${
-                              quote.status === 'READY' 
-                              ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
-                              : 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse'
-                            }`}>
-                              {quote.status}
-                            </span>
-                          </td>
-                          <td className="py-8 px-8 text-right">
-                            <button className="bg-slate-900 text-amber-500 px-6 py-3 rounded-xl font-black text-[10px] hover:bg-slate-800 transition-all uppercase tracking-widest shadow-lg">
-                              Ver Detalhes
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+              </div>
             </div>
-          </div>
+            <nav className="flex-1 p-8 space-y-3">
+              <div className="flex items-center gap-4 p-5 bg-[#FF5A00] text-black rounded-2xl font-black text-[10px] tracking-[0.2em] shadow-xl cursor-pointer">
+                <LayoutDashboard size={20} /> DASHBOARD
+              </div>
+              <div className="flex items-center gap-4 p-5 text-slate-500 hover:text-[#FF5A00] hover:bg-white/5 rounded-2xl transition-all cursor-pointer font-black text-[10px] tracking-[0.2em]">
+                <BarChart3 size={20} /> SAVING ANALYTICS
+              </div>
+              <div className="flex items-center gap-4 p-5 text-slate-500 hover:text-[#FF5A00] hover:bg-white/5 rounded-2xl transition-all cursor-pointer font-black text-[10px] tracking-[0.2em]">
+                <Mail size={20} /> GMAIL CONNECT
+              </div>
+            </nav>
+            <div className="p-8 border-t border-white/5">
+              <button onClick={() => setView('login')} className="flex items-center gap-4 p-5 text-rose-500 hover:bg-rose-500/10 w-full rounded-2xl transition-all font-black text-[10px] tracking-[0.2em]">
+                <LogOut size={20} /> LOGOUT
+              </button>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <main className="flex-1 flex flex-col overflow-hidden">
+            <header className="h-28 bg-black border-b border-white/5 flex items-center justify-between px-14">
+              <div>
+                <h2 className="text-[10px] font-black text-[#FF5A00] uppercase tracking-[0.4em] mb-2">HolamPar Soluções Industriais</h2>
+                <p className="text-3xl font-black text-white tracking-tighter italic">Controle de Suprimentos</p>
+              </div>
+              <div className="flex gap-5">
+                <button className="bg-white/5 text-white px-8 py-4 rounded-2xl font-black text-[10px] flex items-center gap-3 hover:bg-white/10 transition-all uppercase tracking-[0.2em] border border-white/10">
+                  <Zap size={18} className="text-[#FF5A00]" /> Analisar Anexos
+                </button>
+                <button onClick={() => fileInputRef.current?.click()} className="bg-[#FF5A00] text-black px-10 py-5 rounded-2xl font-black text-xs flex items-center gap-3 hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(255,90,0,0.2)] uppercase tracking-[0.2em]">
+                  <FileUp size={20} /> {uploading ? 'Processando...' : 'Novo Orçamento'}
+                </button>
+              </div>
+            </header>
+
+            <div className="flex-1 overflow-y-auto p-14 space-y-10 custom-scrollbar">
+              {/* Cards de KPI - Cinza Claro para Contraste */}
+              <div className="grid grid-cols-3 gap-8">
+                <div className="bg-[#EDEDED] p-10 rounded-[2.5rem] shadow-xl">
+                  <p className="text-black/40 text-[10px] font-black uppercase tracking-widest mb-3">Saving Acumulado</p>
+                  <h3 className="text-4xl font-black text-black tracking-tighter">R$ 12.450,00</h3>
+                  <div className="mt-4 flex items-center gap-2 text-emerald-600 font-black text-[10px] uppercase">
+                    <TrendingUp size={14} /> +15.4% este mês
+                  </div>
+                </div>
+                <div className="bg-[#111111] p-10 rounded-[2.5rem] border border-white/5">
+                  <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-3">Tempo de Operação</p>
+                  <h3 className="text-4xl font-black text-[#FF5A00] tracking-tighter">42 Horas</h3>
+                  <p className="text-[10px] text-slate-400 mt-4 font-bold uppercase tracking-widest">Economia em digitação</p>
+                </div>
+                <div className="bg-[#111111] p-10 rounded-[2.5rem] border border-white/5">
+                  <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-3">Cotações Ativas</p>
+                  <h3 className="text-4xl font-black text-white tracking-tighter">08 Unid.</h3>
+                  <p className="text-[10px] text-slate-400 mt-4 font-bold uppercase tracking-widest">Aguardando Aprovação</p>
+                </div>
+              </div>
+
+              {/* Tabela de Cotações */}
+              <div className="bg-[#111111] rounded-[3rem] border border-white/10 overflow-hidden shadow-2xl">
+                <div className="p-12 border-b border-white/5 flex justify-between items-center bg-white/5">
+                  <div>
+                    <h2 className="text-2xl font-black text-white tracking-tight italic">Cotações Recentes</h2>
+                    <p className="text-[10px] text-[#FF5A00] font-black uppercase tracking-[0.3em] mt-2">Processamento em Tempo Real</p>
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-3 bg-black rounded-full border border-[#FF5A00]/30 text-[10px] font-black text-[#FF5A00] uppercase tracking-widest">
+                    <Lock size={14} /> Criptografia de Ponta
+                  </div>
+                </div>
+                <div className="p-20 text-center">
+                  <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <AlertCircle size={40} className="text-slate-700" />
+                  </div>
+                  <p className="text-slate-500 font-black uppercase tracking-[0.3em] text-xs">Aguardando entrada de dados...</p>
+                </div>
+              </div>
+            </div>
+          </main>
         </div>
-      </main>
+      )}
     </div>
   );
 }
