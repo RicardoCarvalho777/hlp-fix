@@ -294,7 +294,7 @@ export default function HolamParEnterprise() {
                                   quote.status === 'READY' 
                                   ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' 
                                   : 'bg-[#FF5A00]/10 text-[#FF5A00] border-[#FF5A00]/20 animate-pulse'
-                                }`}>
+                                }`}`}>
                                   {quote.status}
                                 </span>
                               </td>
